@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">bjFile</string>
+
+    <string name="Action_Delete">حذف</string>
+    <string name="Action_Edit">ویرایش</string>
+    <string name="Action_Cancel">انصراف</string>
+    <string name="Action_OK">OK</string>
+    <string name="Action_Yes">Yes</string>
+    <string name="Action_NO">No</string>
+    <string name="title_new_folder">پوشه جدید</string>
+    <string name="Title_Attention">Attention!</string>
+    <string name="Title_UnrecoverableData">این عملیات غیر قابل بازگشت است.</string>
+    <string name="Message_Dellete_Sure">آیا قصد حذف این رکورد را دارید؟</string>
+    <string name="Message_Cant_Dellete">حذف انجام نشد.</string>
+    <string name="Message_Delleted">با موفقیت حذف شد.</string>
+    <string name="message_new_folderename">لطفا نام جدید پوشه را وارد نمایید.</string>
+    <string name="message_new_filerename">لطفا نام جدید فایل را وارد نمایید.</string>
+    <string name="title_new_name">تغییر نام</string>
+    <string name="message_new_folder">لطفا نام پوشه را وارد نمایید.</string>
+    <string name="message_Cancel">آیا قصد انصراف دارید؟</string>
+
+    <string name="hint_folder_name">Folder Name</string>
+    <string name="promp_Folder_Exist">پوشه ای با این نام وجود دارد</string>
+    <string name="promp_File_Exist">فایلی با این نام وجود دارد</string>
+    <string name="promp_Folder_Exist_Replace">پوشه ای با این نام وجود دارد
+    \n
+    آیا جایگذاری شود؟
+    \n
+    </string>
+    <string name="promp_File_Exist_Replace">فایلی با این نام وجود دارد
+    \n
+    آیا جایگذاری شود؟
+    \n
+    </string>
+
+    <string name="promp_File_DonExist">فایل مبدا وجود ندارد(در دسترس نیست)</string>
+    <string name="promp_Folder_DontExist">پوشه مبدا وجود ندارد(در دسترس نیست)</string>
+    <string name="permission_show_directories">به منظور مشاهده اطلاعات مکان ذخیره سازی در نرم افزار نیاز به مجوز دسترسی به حافظه می باشد.\nآیا تایید می کنید؟</string>
+</resources>
