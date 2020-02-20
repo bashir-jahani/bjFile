@@ -1,2 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="bj.modules.bjfile" />
+    package="bj.modules.bjfile" >
+    <application>
+
+        <activity android:name="bj.modules.bj_permission_objects.permissionCreateDialog"></activity>
+    </application>
+
+</manifest>
+

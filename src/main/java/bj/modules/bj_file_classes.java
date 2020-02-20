@@ -44,6 +44,7 @@ public class bj_file_classes {
 		public  void OnSelect(Boolean IsSelected,@Nullable file_object SelectedFile);
 	}
 
+
 	public static @interface  GFileDialogsResults{
 		public final static int Completed=0;
 		public final static int Cancelled=1;
