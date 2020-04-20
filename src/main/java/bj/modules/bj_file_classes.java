@@ -43,7 +43,15 @@ public class bj_file_classes {
 		public  void OnResult(int MyResult,String ResultDescriptiopn,@Nullable file_object DestinationFile);
 		public  void OnSelect(Boolean IsSelected,@Nullable file_object SelectedFile);
 	}
-
+	public static @interface FileTransfer_File_Kinds {
+		public static final Integer PersonalImage=81;
+		public static final Integer TheImage=82;
+		public static final Integer TheVideo=83;
+		public static final Integer TheMusic=84;
+		public static final Integer TheAudio=85;
+		public static final Integer TheFile=86;
+		public static final Integer TheBackup=87;
+	}
 
 	public static @interface  GFileDialogsResults{
 		public final static int Completed=0;

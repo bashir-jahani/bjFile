@@ -35,7 +35,10 @@
 
     <string name="promp_File_DonExist">فایل مبدا وجود ندارد(در دسترس نیست)</string>
     <string name="promp_Folder_DontExist">پوشه مبدا وجود ندارد(در دسترس نیست)</string>
-    <string name="permission_show_directories">به منظور مشاهده اطلاعات مکان ذخیره سازی در نرم افزار نیاز به مجوز دسترسی به حافظه می باشد.\nآیا تایید می کنید؟</string>
+    <string name="permission_show_directories">به منظور مشاهده اطلاعات مکان ذخیره سازی در نرم افزار، نیاز به مجوز دسترسی به حافظه می باشد.\nآیا تایید می کنید؟</string>
+    <string name="permission_write_directories">به منظور ذخیره اطلاعات در نرم افزار، نیاز به مجوز نوشتن اطلاعات در حافظه می باشد.\nآیا تایید می کنید؟</string>
+    <string name="permission_show_content">به منظور استفاده از اطلاعات موجود شما در نرم افزار، نیاز به مجوز دسترسی به اطلاعات می باشد.\nآیا تایید می کنید؟</string>
+    <string name="permission_use_camera">به منظور دریافت تصویر از دوربین در نرم افزار، نیاز به مجوز مربوطه می باشد.\nآیا تایید می کنید؟</string>
     <string name="permission_save_images">به منظور مشاهده و ذخیره تصاویر در نرم افزار نیاز به مجوز دسترسی به حافظه می باشد.\nآیا تایید می کنید؟</string>
     <string name="cancel">انصراف</string>
     <string name="from_camera">از طریق دوربین</string>

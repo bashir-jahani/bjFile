@@ -3822,7 +3822,7 @@ public class file_object extends java.io.File {
 
 		}
 		private void ProcesUp(){
-			//Log.d("GGN",CurrentFolder.getAbsolutePath() + " == "+ root.getAbsolutePath());
+			//Log.d("bj modules",CurrentFolder.getAbsolutePath() + " == "+ root.getAbsolutePath());
 			String FN;
 			FN=CurrentFolder.getName();
 			if(CurrentFolder.getAbsolutePath().equals(root.getAbsolutePath())) {

@@ -39,6 +39,7 @@ import androidx.annotation.StringRes;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -172,6 +174,12 @@ public class bj_file  extends java.io.File {
 	public bj_file(@NonNull String pathname, Context context) {
 		super(pathname);
 		mContext=context;
+
+	}
+	public bj_file(@NonNull File file, Context context) {
+		super(file.getAbsolutePath());
+		mContext=context;
+
 	}
 	public  void AllFolders( OnFoldersListingCompletedListener onFoldersListingCompletedListener){
 		mOnFoldersListingCompletedListener=onFoldersListingCompletedListener;
@@ -215,8 +223,46 @@ public class bj_file  extends java.io.File {
 			}
 		};
 	}
-
-
+	public byte[] readBytes()  {
+		RandomAccessFile f = null;
+		try {
+			f = new RandomAccessFile(this, "r");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		byte[] b = new byte[0];
+		try {
+			b = new byte[(int)f.length()];
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			f.readFully(b);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return b;
+	}
+	public static byte[] readBytesofFile(File file)  {
+		RandomAccessFile f = null;
+		try {
+			f = new RandomAccessFile(file, "r");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		byte[] b = new byte[0];
+		try {
+			b = new byte[(int)f.length()];
+		} catch (NullPointerException| IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			f.readFully(b);
+		} catch (NullPointerException | IOException e) {
+			e.printStackTrace();
+		}
+		return b;
+	}
 	public  ArrayList<File> AllFolders(){
 
 		ArrayList<File> mAllFolders = new ArrayList<File>();
@@ -691,9 +737,9 @@ public class bj_file  extends java.io.File {
 		return type;
 	}
 
-	public void GFCopy(final String dscPath,@Nullable OnGFileDialogResultListener onGFileDialogResultListener){
+	public void GFCopy(final String destPath,@Nullable OnGFileDialogResultListener onGFileDialogResultListener){
 		mOnGFileDialogResultListener=onGFileDialogResultListener;
-		GFileDialogsProces mDialog=new GFileDialogsProces(mContext,dscPath,GFileDialogProcesKind.Copy);
+		GFileDialogsProces mDialog=new GFileDialogsProces(mContext,destPath,GFileDialogProcesKind.Copy);
 
 
 		mDialog.show();
@@ -705,9 +751,9 @@ public class bj_file  extends java.io.File {
 
 		mDialog.show();
 	}
-	public void GFMove(final String dscPath,@Nullable OnGFileDialogResultListener onGFileDialogResultListener){
+	public void GFMove(final String destPath,@Nullable OnGFileDialogResultListener onGFileDialogResultListener){
 		mOnGFileDialogResultListener=onGFileDialogResultListener;
-		GFileDialogsProces mDialog=new GFileDialogsProces(mContext,dscPath,GFileDialogProcesKind.Move);
+		GFileDialogsProces mDialog=new GFileDialogsProces(mContext,destPath,GFileDialogProcesKind.Move);
 
 
 		mDialog.show();
@@ -1359,7 +1405,7 @@ public class bj_file  extends java.io.File {
 
 		}
 		Context mContex;
-		String mDscPath;
+		String mdestPath;
 		File mDscDirectory;
 		File mDscFile;
 		ProgressBar PRGB1,PRGB2;
@@ -1375,7 +1421,7 @@ public class bj_file  extends java.io.File {
 			super(context);
 			// Required empty public constructor
 			mContex=context;
-			mDscPath=DscDirectoryPath;
+			mdestPath=DscDirectoryPath;
 			mDscDirectory=new File(DscDirectoryPath);
 			mDscFile=new File(mDscDirectory + File.separator+ bj_file.this.getName());
 			mDialogProcesKind=DialogProcesKind;
@@ -1399,7 +1445,7 @@ public class bj_file  extends java.io.File {
 						PRGB2.setVisibility(View.GONE);
 						TXV_Notice2.setVisibility(View.GONE);
 						TXV_Title.setText("Copying File...");
-						TXV_Notice1.setText(getName() + "\n"+ "to"+ mDscPath);
+						TXV_Notice1.setText(getName() + "\n"+ "to"+ mdestPath);
 						PRGB1.setProgress(0);
 						PRGB1.setMax(100);
 					}
@@ -1745,7 +1791,7 @@ public class bj_file  extends java.io.File {
 						PRGB2.setVisibility(View.GONE);
 						TXV_Notice2.setVisibility(View.GONE);
 						TXV_Title.setText("Copying File...");
-						TXV_Notice1.setText(getName() + "\n"+ "to"+ mDscPath);
+						TXV_Notice1.setText(getName() + "\n"+ "to"+ mdestPath);
 						PRGB1.setProgress(0);
 						PRGB1.setMax(100);
 					}
@@ -2348,7 +2394,7 @@ public class bj_file  extends java.io.File {
 						PRGB2.setVisibility(View.GONE);
 						TXV_Notice2.setVisibility(View.GONE);
 						TXV_Title.setText("Copying File...");
-						TXV_Notice1.setText(getName() + "\n"+ "to"+ mDscPath);
+						TXV_Notice1.setText(getName() + "\n"+ "to"+ mdestPath);
 						PRGB1.setProgress(0);
 						PRGB1.setMax(100);
 					}
@@ -2693,7 +2739,7 @@ public class bj_file  extends java.io.File {
 						PRGB2.setVisibility(View.GONE);
 						TXV_Notice2.setVisibility(View.GONE);
 						TXV_Title.setText("Copying File...");
-						TXV_Notice1.setText(getName() + "\n"+ "to"+ mDscPath);
+						TXV_Notice1.setText(getName() + "\n"+ "to"+ mdestPath);
 						PRGB1.setProgress(0);
 						PRGB1.setMax(100);
 					}
@@ -3423,17 +3469,17 @@ public class bj_file  extends java.io.File {
 									while (mDscFile.exists()){
 										if (i==0) {
 											if (isDirectory()) {
-												mDscFile = new File(mDscPath + File.separator + getName() + " Copy");
+												mDscFile = new File(mdestPath + File.separator + getName() + " Copy");
 											}else {
 
-												mDscFile=new File(mDscPath + File.separator +  "Copy_" + getName());
+												mDscFile=new File(mdestPath + File.separator +  "Copy_" + getName());
 											}
 										}else {
 											if (isDirectory()) {
-												mDscFile = new File(mDscPath + File.separator + getName() + " Copy"+i);
+												mDscFile = new File(mdestPath + File.separator + getName() + " Copy"+i);
 											}else {
 
-												mDscFile=new File(mDscPath + File.separator +  "Copy" +i + "_" + getName());
+												mDscFile=new File(mdestPath + File.separator +  "Copy" +i + "_" + getName());
 											}
 										}
 										i++;
@@ -3674,7 +3720,7 @@ public class bj_file  extends java.io.File {
 			super.onAttachedToWindow();
 			//BJPermissions.GetPermissions(mContext,Manifest.permission.MEDIA_CONTENT_CONTROL,"Media",false);
 
-			bj_getPermission(mContext,null);
+			bj_getPermissionREAD_EXTERNAL_STORAGE(mContext,null);
 
 		}
 
@@ -3896,7 +3942,7 @@ public class bj_file  extends java.io.File {
 
 		}
 		private void ProcesUp(){
-			//Log.d("GGN",CurrentFolder.getAbsolutePath() + " == "+ root.getAbsolutePath());
+			//Log.d("bj modules",CurrentFolder.getAbsolutePath() + " == "+ root.getAbsolutePath());
 			String FN;
 			FN=CurrentFolder.getName();
 			if(CurrentFolder.getAbsolutePath().equals(root.getAbsolutePath())) {
@@ -4399,8 +4445,17 @@ public class bj_file  extends java.io.File {
 			}
 		}
 	}
-	public static void bj_getPermission(Context context, bj_permission.OnGetPermissionListener onGetPermissionListener) {
+	public static void bj_getPermissionREAD_EXTERNAL_STORAGE(Context context, bj_permission.OnGetPermissionListener onGetPermissionListener) {
 		CheckPermision(context, Manifest.permission.READ_EXTERNAL_STORAGE, R.string.permission_show_directories, onGetPermissionListener);
+	}
+	public static void bj_getPermissionWRITE_EXTERNAL_STORAGE(Context context, bj_permission.OnGetPermissionListener onGetPermissionListener) {
+		CheckPermision(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, R.string.permission_write_directories, onGetPermissionListener);
+	}
+	public static void bj_getPermissionMEDIA_CONTENT_CONTROL(Context context, bj_permission.OnGetPermissionListener onGetPermissionListener) {
+		CheckPermision(context, Manifest.permission.MEDIA_CONTENT_CONTROL, R.string.permission_show_content, onGetPermissionListener);
+	}
+	public static void bj_getPermissionCAMERA(Context context, bj_permission.OnGetPermissionListener onGetPermissionListener) {
+		CheckPermision(context, Manifest.permission.CAMERA, R.string.permission_use_camera, onGetPermissionListener);
 	}
 }
 
