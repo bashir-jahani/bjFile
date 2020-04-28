@@ -40,7 +40,7 @@
     <string name="permission_show_content">به منظور استفاده از اطلاعات موجود شما در نرم افزار، نیاز به مجوز دسترسی به اطلاعات می باشد.\nآیا تایید می کنید؟</string>
     <string name="permission_use_camera">به منظور دریافت تصویر از دوربین در نرم افزار، نیاز به مجوز مربوطه می باشد.\nآیا تایید می کنید؟</string>
     <string name="permission_save_images">به منظور مشاهده و ذخیره تصاویر در نرم افزار نیاز به مجوز دسترسی به حافظه می باشد.\nآیا تایید می کنید؟</string>
-    <string name="cancel">انصراف</string>
+    <string name="cancel">Cancel</string>
     <string name="from_camera">از طریق دوربین</string>
     <string name="from_gallery">از گالری</string>
     <string name="from_content">از محتویات حافظه</string>

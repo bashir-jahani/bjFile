@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -1238,8 +1239,11 @@ public class file_object extends java.io.File {
 				GF_TXV_Title.setPadding(5,5,5,5);
 				GF_TXV_Title.setText(MyTitle);
 				GF_TXV_Title.setGravity(Gravity.CENTER_VERTICAL);
-				GF_TXV_Title.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
-
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					GF_TXV_Title.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
+				}else {
+					GF_TXV_Title.setTextAppearance(getContext() ,R.style.TextAppearance_AppCompat_Title);
+				}
 
 				GF_TXV_Notice1=new TextView(vContext);
 				GF_TXV_Notice1.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -4204,7 +4208,11 @@ public class file_object extends java.io.File {
 
 				GDCD_TXV_Title=new TextView(vContext);
 				GDCD_TXV_Title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-				GDCD_TXV_Title.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					GDCD_TXV_Title.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
+				}else {
+					GDCD_TXV_Title.setTextAppearance(getContext(), R.style.TextAppearance_AppCompat_Title);
+				}
 				GDCD_TXV_Title.setBackgroundColor(vContext.getResources().getColor(R.color.colorPrimaryDark));
 				GDCD_TXV_Title.setTextColor(Color.WHITE);
 				GDCD_TXV_Title.setPadding(5,5,5,5);
@@ -4214,7 +4222,11 @@ public class file_object extends java.io.File {
 
 				GDCD_TXV_Path=new TextView(vContext);
 				GDCD_TXV_Path.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-				GDCD_TXV_Path.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					GDCD_TXV_Path.setTextAppearance(R.style.TextAppearance_AppCompat_Title);
+				}else {
+					GDCD_TXV_Path.setTextAppearance(getContext(), R.style.TextAppearance_AppCompat_Title);
+				}
 				GDCD_TXV_Path.setBackgroundColor(vContext.getResources().getColor(R.color.colorAccent));
 				GDCD_TXV_Path.setTextColor(Color.WHITE);
 				GDCD_TXV_Path.setPadding(5,5,5,5);

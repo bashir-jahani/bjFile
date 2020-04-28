@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -186,7 +187,8 @@ public class bj_path_files {
 			}
 
 		}else {
-			MessageBoxAsError(context.getResources().getString(R.string.permission_not_accept),context);
+//			MessageBoxAsError(context.getResources().getString(R.string.permission_not_accept),context);
+			Toast.makeText(context, R.string.permission_not_accept, Toast.LENGTH_SHORT).show();
 		}
 
 
