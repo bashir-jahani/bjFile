@@ -25,48 +25,48 @@ public class bj_file_classes {
 	}
 	public static interface OnFilesListingCompletedListener {
 		// you can define any parameter as per your requirement
-		public void OnCompleted(ArrayList<File> AllFiles);
-		public void OnCompletedList(ArrayList<String> AllFilesList);
+		void OnCompleted(ArrayList<File> AllFiles);
+		void OnCompletedList(ArrayList<String> AllFilesList);
 
 	}
 	public static interface OnFoldersListingCompletedListener {
 		// you can define any parameter as per your requirement
-		public void OnCompleted(ArrayList<File> AllFolders);
-		public void OnCompletedList(ArrayList<String> AllFoldersList);
+		void OnCompleted(ArrayList<File> AllFolders);
+		void OnCompletedList(ArrayList<String> AllFoldersList);
 
 	}
 	public static interface OnGFileDialogResultListener {
 		// you can define any parameter as per your requirement
-		public  void OnResult(int MyResult,String ResultDescriptiopn);
-		public  void OnResult(int MyResult,String ResultDescriptiopn,String DestinationFilePath);
-		public  void OnResult(int MyResult,String ResultDescriptiopn,@Nullable File DestinationFile);
-		public  void OnResult(int MyResult,String ResultDescriptiopn,@Nullable file_object DestinationFile);
-		public  void OnSelect(Boolean IsSelected,@Nullable file_object SelectedFile);
+		void OnResult(int MyResult,String ResultDescriptiopn);
+		void OnResult(int MyResult,String ResultDescriptiopn,String DestinationFilePath);
+		void OnResult(int MyResult,String ResultDescriptiopn,@Nullable File DestinationFile);
+		void OnResult(int MyResult,String ResultDescriptiopn,@Nullable file_object DestinationFile);
+		void OnSelect(Boolean IsSelected,@Nullable file_object SelectedFile);
 	}
 	public static @interface FileTransfer_File_Kinds {
-		public static final Integer PersonalImage=81;
-		public static final Integer TheImage=82;
-		public static final Integer TheVideo=83;
-		public static final Integer TheMusic=84;
-		public static final Integer TheAudio=85;
-		public static final Integer TheFile=86;
-		public static final Integer TheBackup=87;
+		Integer PersonalImage=81;
+		Integer TheImage=82;
+		Integer TheVideo=83;
+		Integer TheMusic=84;
+		Integer TheAudio=85;
+		Integer TheFile=86;
+		Integer TheBackup=87;
 	}
 
 	public static @interface  GFileDialogsResults{
-		public final static int Completed=0;
-		public final static int Cancelled=1;
-		public final static int GiveError=2;
-		public final static int DontCompleted=3;
-		public final static int Selected=4;
+		int Completed=0;
+		int Cancelled=1;
+		int GiveError=2;
+		int DontCompleted=3;
+		int Selected=4;
 
 
 	}
 	public static @interface GFileDialogProcesKind{
-		public static final int Copy=0;
-		public static final int Move=1;
-		public static final int Dellete=2;
-		public static final int Rename=3;
+		int Copy=0;
+		int Move=1;
+		int Dellete=2;
+		int Rename=3;
 	}
 	public static class PathUtil {
 		public static String getPath(Context context, Uri uri) throws URISyntaxException {
