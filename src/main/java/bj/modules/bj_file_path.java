@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -25,7 +24,7 @@ import bj.modules.bjfile.R;
 import static bj.modules.bj_messageBox.MessageBoxAsError;
 import static bj.modules.bj_permission.CheckPermision;
 
-public class bj_path_files {
+public class bj_file_path {
 	private static String TAG="bj_path_files";
 
 	public static String customPath;
@@ -49,7 +48,8 @@ public class bj_path_files {
 		//Log.i(TAG, "createTemporaryFile exist 1: "+tempFile.exists());
 		return tempFile;
 	}
-	public  static File createTemporaryFile(Context context, String part, String ext, @bj_file_classes.FileTransfer_File_Kinds int fileKind,String memeberID, boolean asThumbnails) throws Exception	{
+
+	public  static File createTemporaryFile(Context context, String part, String ext, @bj_file_classes.File_Kinds int fileKind, String memeberID, boolean asThumbnails) throws Exception	{
 		File tempDir;
 		String tempDirPath= Paths_Temp(context,fileKind,memeberID);
 		if (asThumbnails) {
@@ -209,11 +209,26 @@ public class bj_path_files {
 		}
 	}
 	public  static String Path_Temp_New(Context context){
+
 		ContextWrapper cw = new ContextWrapper(context);
 
 		File directory = cw.getDir("temp" , Context.MODE_PRIVATE);
 
 		return directory.getAbsolutePath();
+	}
+	public  static String Path_Temp_New(){
+		File tempDir= Environment.getExternalStorageDirectory();
+
+		tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+		if(!tempDir.exists())
+		{
+			tempDir.mkdirs();
+		}
+		//ContextWrapper cw = new ContextWrapper(context);
+
+		//File directory = cw.getDir("temp" , Context.MODE_PRIVATE);
+
+		return tempDir.getAbsolutePath();
 	}
 	public  static String Paths_Temp(Context context ){
 		String p=Path_Temp_New(context);
@@ -235,21 +250,44 @@ public class bj_path_files {
 
 		return file.getAbsolutePath();
 	}
+	public  static String Paths_Temp( ){
+		String p=Path_Temp_New();
+		if (customPath!=null){
+			if (customPath.length()>0){
+				p=customPath;
+				if (!p.endsWith(File.separator)){
+					p=p+File.separator;
+				}
+				if (p.endsWith(File.separator)){
+					p=p+".temp";
+				}else {
+					p=p+ File.separator+".temp";
+				}
+			}
+		}
+		if (!p.endsWith(File.separator)){
+			p=p+File.separator;
+		}
+		File file=new File(p);
+		if (!file.exists()){    file.mkdirs();}
+
+		return file.getAbsolutePath();
+	}
 	public  static String Paths_Temp(Context contex, int FileKind,String memberID){
 		String p=Paths_Temp(contex);
-		if (FileKind== bj_file_classes.FileTransfer_File_Kinds.PersonalImage) {
+		if (FileKind== bj_file_classes.File_Kinds.PersonalImage) {
 			p=p+File.separator + "P_Images"+ File.separator+memberID+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheFile){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheFile){
 			p=p+File.separator + "Files"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheAudio){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheAudio){
 			p=p+File.separator + "Audio"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheBackup){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheBackup){
 			p=p+File.separator + "Backup"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheImage){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheImage){
 			p=p+File.separator + "Images"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheMusic){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheMusic){
 			p=p+File.separator + "Music"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheVideo){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheVideo){
 			p=p+File.separator + "Video"+ File.separator;
 		}
 		File file=new File(p);
@@ -280,19 +318,19 @@ public class bj_path_files {
 	}
 	public  static String Paths_Temp_file(Context contex, int FileKind,String fileName,String memberID,boolean asThumbnails){
 		String p=Paths_Temp(contex);
-		if (FileKind== bj_file_classes.FileTransfer_File_Kinds.PersonalImage) {
+		if (FileKind== bj_file_classes.File_Kinds.PersonalImage) {
 			p=p+File.separator + "P_Images"+ File.separator+memberID+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheFile){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheFile){
 			p=p+File.separator + "Files"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheAudio){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheAudio){
 			p=p+File.separator + "Audio"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheBackup){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheBackup){
 			p=p+File.separator + "Backup"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheImage){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheImage){
 			p=p+File.separator + "Images"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheMusic){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheMusic){
 			p=p+File.separator + "Music"+ File.separator;
-		}else if(FileKind== bj_file_classes.FileTransfer_File_Kinds.TheVideo){
+		}else if(FileKind== bj_file_classes.File_Kinds.TheVideo){
 			p=p+File.separator + "Video"+ File.separator;
 		}
 		File file=new File(p);
@@ -306,7 +344,7 @@ public class bj_path_files {
 	}
 	public  static String Paths_Temp_MemberImages(Context contex,String memberID){
 
-		String GPath= Paths_Temp(contex, bj_file_classes.FileTransfer_File_Kinds.PersonalImage,memberID)+File.separator;
+		String GPath= Paths_Temp(contex, bj_file_classes.File_Kinds.PersonalImage,memberID)+File.separator;
 		File file=new File(GPath);
 		if (!file.exists()){    file.mkdirs();}
 		GPath=GPath+memberID;

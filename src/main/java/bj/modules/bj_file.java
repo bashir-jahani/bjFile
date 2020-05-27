@@ -1,7 +1,9 @@
 package bj.modules;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,8 +14,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.provider.UserDictionary;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
@@ -35,7 +40,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
+import androidx.core.content.FileProvider;
+import androidx.loader.content.CursorLoader;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -52,6 +60,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Writer;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,101 +79,269 @@ import static bj.modules.bj_messageBox.*;
 import static bj.modules.bj_permission.CheckPermision;
 
 public class bj_file  extends java.io.File {
-	public static class PathUtil {
-		public static String getPath(Context context, Uri uri) throws URISyntaxException {
+	static String TAG="bj_file";
+	public static class uriUtil {
+		public static String extensionFromUri(Context context,Uri uri){
+			String extension;
+
+			//Check uri format to avoid null
+			if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+				//If scheme is a content
+				final MimeTypeMap mime = MimeTypeMap.getSingleton();
+				extension = mime.getExtensionFromMimeType(context.getContentResolver().getType(uri));
+			} else {
+				//If scheme is a File
+				//This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+				extension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri.getPath())).toString());
+
+			}
+
+			return extension;
+		}
+		public static Uri uriFromFile(Context context,File file){
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				return 	FileProvider.getUriForFile(context,context.getApplicationInfo().packageName,file);
+			}else{
+				return 	Uri.fromFile(file);
+			}
+
+
+		}
+		public static long getSize(Context context,Uri uri){
+			String[] pProjection = new String[]{MediaStore.Images.Media.SIZE};
+			Cursor cursor = null;
+			cursor = context.getContentResolver().query(uri, pProjection, null, null, null);
+			if (cursor==null)
+				return 0;
+			int column_index=0;
+			column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE);
+			if (cursor.moveToFirst()) {
+				Long s= Long.valueOf(0);
+				try{
+					s=cursor.getLong(column_index);
+				}catch (Exception e){
+
+				}
+				return s;
+			}else {
+				return 0;
+			}
+		}
+		public static String getPath(Context context, Uri uri)  {
+			String path=null;
 			final boolean needToCheckUri = Build.VERSION.SDK_INT >= 19;
 			String selection = null;
 			String[] selectionArgs = null;
+			String type = null;
+			String filterFileName="";
 			// Uri is different in versions after KITKAT (Android 4.4), we need to
+
 			// deal with different Uris.
-			if (needToCheckUri && DocumentsContract.isDocumentUri(context.getApplicationContext(), uri)) {
+			String[] projection = null;
+			Log.i(TAG, "isMediaDocument: uri.getAuthority()"+uri.getAuthority());
+			if (needToCheckUri && DocumentsContract.isDocumentUri(context, uri)) {
+
 				if (isExternalStorageDocument(uri)) {
+
 					final String docId = DocumentsContract.getDocumentId(uri);
+					Log.i(TAG, "getPath: isExternalStorageDocument docId "+docId);
 					final String[] split = docId.split(":");
-					return Environment.getExternalStorageDirectory() + "/" + split[1];
+
+					path= Environment.getExternalStorageDirectory() + "/" + split[1];
+
 				} else if (isDownloadsDocument(uri)) {
+
 					final String id = DocumentsContract.getDocumentId(uri);
-					uri = ContentUris.withAppendedId(
-							Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+					Log.i(TAG, "getPath: isExternalStorageDocument docId "+id);
+					boolean idHavePath=false;
+					try{
+						idHavePath= Uri.parse(id).getScheme().equals("raw");
+					}catch (Exception e){
+
+					}
+					if (idHavePath){
+						final String[] split = id.split(":");
+
+						path=  split[1];
+					}else {
+						projection = new String[]{MediaStore.DownloadColumns.DATA,MediaStore.DownloadColumns._ID,MediaStore.DownloadColumns.DISPLAY_NAME};
+						type="download";
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+
+
+							filterFileName=id;
+
+							////////
+							String[] pProjection = new String[]{MediaStore.DownloadColumns.DISPLAY_NAME};
+							Cursor cursor = null;
+							cursor = context.getContentResolver().query(uri, pProjection, selection, selectionArgs, null);
+							int column_indexName=0;
+							column_indexName = cursor.getColumnIndexOrThrow(MediaStore.DownloadColumns.DISPLAY_NAME);
+							if (cursor.moveToFirst()) {
+
+								filterFileName = cursor.getString(column_indexName);
+							}
+
+
+							////////
+									uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+							selection = MediaStore.DownloadColumns.DISPLAY_NAME+"=?";
+							selectionArgs = new String[]{ filterFileName };
+
+						}else {
+							uri=ContentUris.withAppendedId(
+									Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+						}
+					}
 				} else if (isMediaDocument(uri)) {
+
 					final String docId = DocumentsContract.getDocumentId(uri);
+					Log.i(TAG, "getPath: isMediaDocument docId "+docId);
 					final String[] split = docId.split(":");
-					final String type = split[0];
-					if ("image".equals(type)) {
+					 type = split[0];
+					if (type.equals("image")) {
+						projection = new String[]{MediaStore.Images.Media.DATA,MediaStore.Images.Media._ID,MediaStore.Images.Media.DISPLAY_NAME};
 						uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-					} else if ("video".equals(type)) {
+					} else if (type.equals("video")) {
+						projection = new String[]{MediaStore.Video.Media.DATA,MediaStore.Video.Media._ID,MediaStore.Video.Media.DISPLAY_NAME};
 						uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-					} else if ("audio".equals(type)) {
+					} else if (type.equals("audio")) {
+						projection = new String[]{MediaStore.Audio.Media.DATA,MediaStore.Audio.Media._ID,MediaStore.Audio.Media.DISPLAY_NAME};
 						uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 					}
 					selection = "_id=?";
 					selectionArgs = new String[]{ split[1] };
+				}else {
+					Log.i(TAG, "getPath: onother kind: "+uri);
 				}
+			}else {
+				Log.i(TAG, "getPath: dont need to check DocumentsContract.isDocumentUri(context, uri) "+DocumentsContract.isDocumentUri(context, uri));
+				Log.i(TAG, "getPath: uri: "+uri + " uri.getScheme(): "+uri.getScheme());
+
+				String fPath = uri.getPath();
+				Log.i(TAG, "getPath: fPath: "+fPath);
+				if (fPath.contains("/external_files/")){
+					fPath=fPath.replace("/external_files/","");
+					path= Environment.getExternalStorageDirectory() + "/" + fPath;
+				}
+
 			}
-			if ("content".equalsIgnoreCase(uri.getScheme())) {
-				String[] projection = { MediaStore.Images.Media.DATA };
+			boolean isFromContents=false,isFromFiles=false;
+			try{
+				isFromContents=uri.getScheme().equalsIgnoreCase("content");
+			}catch (Exception e){
+
+			}
+			try{
+				isFromFiles=uri.getScheme().equalsIgnoreCase("file");
+			}catch (Exception e){
+
+			}
+			Log.i(TAG, "getPath: path: "+path);
+			Log.i(TAG, "getPath: isFromContents: "+isFromContents);
+			if (path==null && isFromContents) {
 				Cursor cursor = null;
-				try {
-					cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-					int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-					if (cursor.moveToFirst()) {
-						return cursor.getString(column_index);
+				//try {
+
+
+					cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null);
+					int column_index = 0;
+					int column_indexID=0;
+					int column_indexName=0;
+					if ("image".equals(type)) {
+						column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+						 column_indexID = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+						column_indexName = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+					} else if ("video".equals(type)) {
+						column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+						 column_indexID = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+						column_indexName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
+					} else if ("audio".equals(type)) {
+						column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+						 column_indexID = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+						column_indexName = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
+					}else if ("download".equals(type)){
+						column_index = cursor.getColumnIndexOrThrow(MediaStore.DownloadColumns.DATA);
+						 column_indexID = cursor.getColumnIndexOrThrow(MediaStore.DownloadColumns._ID);
+						column_indexName = cursor.getColumnIndexOrThrow(MediaStore.DownloadColumns.DISPLAY_NAME);
+					}else {
+						try{
+							column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+						}catch (IllegalArgumentException e){
+
+						}
+						try{
+							column_indexID = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+						}catch (IllegalArgumentException e){
+
+						}
+
+						column_indexName = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
 					}
+					
+					if (cursor.moveToFirst()) {
+						if (cursor.getCount()>1){
+							do {
+								Log.i(TAG, "getPath1: ID "+cursor.getString(column_indexID));
+								Log.i(TAG, "getPath1: Name "+cursor.getString(column_indexName));
+								if (cursor.getString(column_indexName).equals(filterFileName)){
+									path= cursor.getString(column_index);
+									break;
+								}
+							}while (cursor.moveToNext());
+						}else {
+
+							if (column_index==0){
+								path= uri.getPath();
+							}else {
+								path= cursor.getString(column_index);
+							}
+
+						}
+
+
+
+
+					}
+					/**
 				} catch (Exception e) {
+					Log.e(TAG, "getPath: error: "+e.getMessage() );
 				}
-			} else if ("file".equalsIgnoreCase(uri.getScheme())) {
-				return uri.getPath();
+					 */
+			} else if (path==null && isFromFiles) {
+				path= uri.getPath();
 			}
-			return null;
+			if (path==null)
+				Log.i(TAG, "getPath: null "+uri);
+			else
+				Log.i(TAG, "getPath: "+path + " exist: "+(new File(path)).exists());
+
+			return path;
+
 		}
+		public static File getFileFromUri(Context context,Uri uri){
+			String path=getPath(context,uri);
+			if (path==null) {
+				return null;
+			}else{
+				return new File(path);
+			}
 
-
-		/**
-		 * @param uri The Uri to check.
-		 * @return Whether the Uri authority is ExternalStorageProvider.
-		 */
+		}
 		public static boolean isExternalStorageDocument(Uri uri) {
 			return "com.android.externalstorage.documents".equals(uri.getAuthority());
 		}
-
-		/**
-		 * @param uri The Uri to check.
-		 * @return Whether the Uri authority is DownloadsProvider.
-		 */
 		public static boolean isDownloadsDocument(Uri uri) {
 			return "com.android.providers.downloads.documents".equals(uri.getAuthority());
 		}
-
-		/**
-		 * @param uri The Uri to check.
-		 * @return Whether the Uri authority is MediaProvider.
-		 */
 		public static boolean isMediaDocument(Uri uri) {
-			return "com.android.providers.media.documents".equals(uri.getAuthority());
+			boolean result;
+
+			result= "com.android.providers.media.documents".equals(uri.getAuthority()) ||  "com.android.providers.media.documents".equals(uri.getAuthority());;
+
+			return result;
 		}
-	}
-	public static String getRealPathFromURI_API19(Context context, Uri uri){
-		String filePath = "";
-		String wholeID = DocumentsContract.getDocumentId(uri);
-
-		// Split at colon, use second item in the array
-		String id = wholeID.split(":")[1];
-
-		String[] column = { MediaStore.Images.Media.DATA };
-
-		// where id is equal to
-		String sel = MediaStore.Images.Media._ID + "=?";
-
-		Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-				column, sel, new String[]{ id }, null);
-
-		int columnIndex = cursor.getColumnIndex(column[0]);
-
-		if (cursor.moveToFirst()) {
-			filePath = cursor.getString(columnIndex);
-		}
-		cursor.close();
-		return filePath;
 	}
 	Context mContext;
 	private static OnGFileDialogResultListener mOnGFileDialogResultListener;
@@ -366,6 +543,7 @@ public class bj_file  extends java.io.File {
 
 		return mAllFiles;
 	}
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	public  ArrayList<bj_file> listGFiles(FilenameFilter filter, final Boolean dscSort){
 
 		ArrayList<bj_file> mFiles = new ArrayList<bj_file>();
@@ -415,6 +593,7 @@ public class bj_file  extends java.io.File {
 		});
 		return mFiles;
 	}
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	public  ArrayList<bj_file> listGFiles(Boolean OnlyDirectory, final Boolean dscSort){
 
 		ArrayList<bj_file> mFiles = new ArrayList<bj_file>();
@@ -611,6 +790,7 @@ public class bj_file  extends java.io.File {
 		}
 		return list;
 	}
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	private ArrayList<File> AllFolders(File SubDir){
 
 		ArrayList<File> mAllFolders = new ArrayList<File>();
@@ -643,6 +823,7 @@ public class bj_file  extends java.io.File {
 		return mAllFolders;
 
 	}
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	private ArrayList<File> AllFiles(File SubDir){
 
 		ArrayList<File> mAllFiles = new ArrayList<File>();
@@ -685,6 +866,7 @@ public class bj_file  extends java.io.File {
 		if (isDirectory()) {
 			return "Directory";
 		}else {
+			//extension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri.getPath())).toString());
 			return MimeTypeMap.getFileExtensionFromUrl( getAbsolutePath());
 		}
 	}
@@ -2021,6 +2203,7 @@ public class bj_file  extends java.io.File {
 				dismiss();
 			}
 
+			@RequiresApi(api = Build.VERSION_CODES.N)
 			@Override
 			protected void onPostExecute(String s) {
 				super.onPostExecute(s);
@@ -2215,6 +2398,7 @@ public class bj_file  extends java.io.File {
 			ArrayList<File> SourceFiles;
 			ArrayList<File> SourceFolders=new ArrayList<File>();
 
+			@RequiresApi(api = Build.VERSION_CODES.N)
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();

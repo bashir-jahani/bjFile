@@ -4,7 +4,16 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            android:enabled="true"
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
         <activity android:name="bj.modules.bj_permission_objects.permissionCreateDialog"></activity>
     </application>
 
